@@ -13,6 +13,7 @@ RUN npm ci
 COPY . .
 
 # Accept build argument
+# If you want to add more environment variables, you can add them here similarly
 ARG VITE_API_BASE_URL=http://localhost:8080
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 
