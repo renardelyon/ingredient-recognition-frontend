@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { Bookmark } from "lucide-react";
 import { RecipeList, RecipeDetailModal } from "../components";
 import {
@@ -11,11 +11,14 @@ import type { Recipe } from "../types";
 export const SavedRecipesPage = () => {
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
 
-  const { data: savedRecipes = [], isLoading } = useGetSavedRecipes();
+  const { data: savedRecipesData, isLoading } = useGetSavedRecipes();
   const saveRecipeMutation = useSaveRecipe();
   const removeRecipeMutation = useRemoveSavedRecipe();
 
-  const savedRecipeIds = savedRecipes.map((r) => r.id);
+  const savedRecipeIds = useMemo(
+    () => savedRecipesData?.recipes?.map((r) => r.id) || [],
+    [savedRecipesData]
+  );
 
   const handleSaveRecipe = useCallback(
     async (recipe: Recipe) => {
@@ -50,16 +53,19 @@ export const SavedRecipesPage = () => {
           <div>
             <h1 className="text-2xl font-bold text-gray-800">Saved Recipes</h1>
             <p className="text-gray-500">
-              {savedRecipes.length} recipe{savedRecipes.length !== 1 ? "s" : ""}{" "}
-              saved
+              {savedRecipesData?.recipes?.length || 0} recipe
+              {(savedRecipesData?.recipes?.length || 0) !== 1 ? "s" : ""} saved
             </p>
           </div>
         </div>
 
         {/* Recipe List */}
         <RecipeList
-          recipes={savedRecipes}
-          savedRecipeIds={savedRecipeIds}
+          recipes={
+            Array.isArray(savedRecipesData?.recipes)
+              ? savedRecipesData.recipes
+              : []
+          }
           onSaveRecipe={handleSaveRecipe}
           onRemoveRecipe={handleRemoveRecipe}
           onViewDetails={setSelectedRecipe}

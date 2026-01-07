@@ -3,6 +3,7 @@ import type {
   RecipeRecommendationResponse,
   Recipe,
   SavedRecipe,
+  RecipeResponse,
 } from "../types";
 
 export const recipeService = {
@@ -15,7 +16,7 @@ export const recipeService = {
     ingredients: string[]
   ): Promise<RecipeRecommendationResponse> => {
     const response = await apiClient.post<RecipeRecommendationResponse>(
-      "/api/recipes/recommendations",
+      "/api/v1/recipes/recommend",
       { ingredients }
     );
 
@@ -28,7 +29,7 @@ export const recipeService = {
    * @returns Promise with recipe details
    */
   getRecipeById: async (recipeId: string): Promise<Recipe> => {
-    const response = await apiClient.get<Recipe>(`/api/recipes/${recipeId}`);
+    const response = await apiClient.get<Recipe>(`/api/v1/recipes/${recipeId}`);
     return response.data;
   },
 
@@ -39,7 +40,7 @@ export const recipeService = {
    */
   saveRecipe: async (recipe: Recipe): Promise<SavedRecipe> => {
     const response = await apiClient.post<SavedRecipe>(
-      "/api/recipes/saved",
+      "/api/v1/recipes/saved",
       recipe
     );
     return response.data;
@@ -49,8 +50,10 @@ export const recipeService = {
    * Get all saved recipes for the user
    * @returns Promise with saved recipes
    */
-  getSavedRecipes: async (): Promise<SavedRecipe[]> => {
-    const response = await apiClient.get<SavedRecipe[]>("/api/recipes/saved");
+  getSavedRecipes: async (): Promise<RecipeResponse> => {
+    const response = await apiClient.get<RecipeResponse>(
+      "/api/v1/recipes/saved"
+    );
     return response.data;
   },
 
@@ -59,6 +62,6 @@ export const recipeService = {
    * @param recipeId - The recipe ID to remove
    */
   removeSavedRecipe: async (recipeId: string): Promise<void> => {
-    await apiClient.delete(`/api/recipes/saved/${recipeId}`);
+    await apiClient.delete(`/api/v1/recipes/saved/${recipeId}`);
   },
 };

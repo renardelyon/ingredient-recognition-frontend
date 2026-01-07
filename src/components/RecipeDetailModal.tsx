@@ -1,4 +1,4 @@
-import { X, Clock, Users, ChefHat } from "lucide-react";
+import { X, Clock, ChefHat, Lightbulb, Utensils } from "lucide-react";
 import type { Recipe } from "../types";
 
 interface RecipeDetailModalProps {
@@ -21,7 +21,7 @@ export const RecipeDetailModal = ({
   if (!isOpen) return null;
 
   const handleSaveClick = () => {
-    if (isSaved) {
+    if (isSaved && recipe.id) {
       onRemove(recipe.id);
     } else {
       onSave(recipe);
@@ -36,39 +36,29 @@ export const RecipeDetailModal = ({
       />
       <div className="relative min-h-screen flex items-center justify-center p-4">
         <div className="relative bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-xl">
-          {/* Header with image */}
-          {recipe.imageUrl && (
-            <div className="relative h-64">
-              <img
-                src={recipe.imageUrl}
-                alt={recipe.title}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent" />
-              <button
-                onClick={onClose}
-                className="absolute top-4 right-4 p-2 bg-white/90 rounded-full hover:bg-white transition-colors"
-              >
-                <X size={20} />
-              </button>
-            </div>
-          )}
-
-          {!recipe.imageUrl && (
-            <button
-              onClick={onClose}
-              className="absolute top-4 right-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors z-10"
-            >
-              <X size={20} />
-            </button>
-          )}
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors z-10"
+          >
+            <X size={20} />
+          </button>
 
           <div className="p-6">
             {/* Title and metadata */}
-            <div className="flex items-start justify-between gap-4 mb-4">
-              <h2 className="text-2xl font-bold text-gray-800">
-                {recipe.title}
-              </h2>
+            <div className="flex items-start justify-between gap-4 mb-4 mr-10">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-800">
+                  {recipe.name}
+                </h2>
+                <div className="flex items-center gap-2 mt-2">
+                  <span className="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full">
+                    {recipe.cuisine}
+                  </span>
+                  <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+                    {recipe.difficulty}
+                  </span>
+                </div>
+              </div>
               <button
                 onClick={handleSaveClick}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
@@ -81,28 +71,26 @@ export const RecipeDetailModal = ({
               </button>
             </div>
 
-            <p className="text-gray-600 mb-6">{recipe.description}</p>
-
             <div className="flex flex-wrap gap-4 mb-6">
               <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg">
                 <Clock size={18} className="text-gray-500" />
                 <div>
-                  <p className="text-xs text-gray-500">Prep Time</p>
-                  <p className="text-sm font-medium">{recipe.prepTime}</p>
+                  <p className="text-xs text-gray-500">Cooking Time</p>
+                  <p className="text-sm font-medium">{recipe.cooking_time}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg">
                 <ChefHat size={18} className="text-gray-500" />
                 <div>
-                  <p className="text-xs text-gray-500">Cook Time</p>
-                  <p className="text-sm font-medium">{recipe.cookTime}</p>
+                  <p className="text-xs text-gray-500">Difficulty</p>
+                  <p className="text-sm font-medium">{recipe.difficulty}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg">
-                <Users size={18} className="text-gray-500" />
+                <Utensils size={18} className="text-gray-500" />
                 <div>
-                  <p className="text-xs text-gray-500">Servings</p>
-                  <p className="text-sm font-medium">{recipe.servings}</p>
+                  <p className="text-xs text-gray-500">Cuisine</p>
+                  <p className="text-sm font-medium">{recipe.cuisine}</p>
                 </div>
               </div>
             </div>
@@ -126,7 +114,7 @@ export const RecipeDetailModal = ({
             </div>
 
             {/* Instructions */}
-            <div>
+            <div className="mb-6">
               <h3 className="text-lg font-semibold text-gray-800 mb-3">
                 Instructions
               </h3>
@@ -140,6 +128,23 @@ export const RecipeDetailModal = ({
                   </li>
                 ))}
               </ol>
+            </div>
+
+            {/* Nutrition */}
+            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                Nutrition
+              </h3>
+              <p className="text-gray-600 text-sm">{recipe.nutrition}</p>
+            </div>
+
+            {/* Tips */}
+            <div className="p-4 bg-emerald-50 rounded-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <Lightbulb size={18} className="text-emerald-600" />
+                <h3 className="text-lg font-semibold text-gray-800">Tips</h3>
+              </div>
+              <p className="text-gray-600 text-sm">{recipe.tips}</p>
             </div>
           </div>
         </div>

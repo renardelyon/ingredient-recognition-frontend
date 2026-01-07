@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import {
   ImageUpload,
   IngredientsList,
@@ -32,9 +32,12 @@ export const HomePage = () => {
   const getRecommendationsMutation = useGetRecommendations();
   const saveRecipeMutation = useSaveRecipe();
   const removeRecipeMutation = useRemoveSavedRecipe();
-  const { data: savedRecipes = [] } = useGetSavedRecipes();
+  const { data: savedRecipesData } = useGetSavedRecipes();
 
-  const savedRecipeIds = savedRecipes.map((r) => r.id);
+  const savedRecipeIds = useMemo(
+    () => savedRecipesData?.recipes?.map((r) => r.id) || [],
+    [savedRecipesData]
+  );
 
   const handleImageSelect = useCallback((file: File) => {
     setUploadedImage(file);
@@ -177,7 +180,6 @@ export const HomePage = () => {
               </h2>
               <RecipeList
                 recipes={recommendedRecipes}
-                savedRecipeIds={savedRecipeIds}
                 onSaveRecipe={handleSaveRecipe}
                 onRemoveRecipe={handleRemoveRecipe}
                 onViewDetails={setSelectedRecipe}

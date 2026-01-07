@@ -1,13 +1,18 @@
 export interface Recipe {
-  id: string;
-  title: string;
-  description: string;
-  imageUrl?: string;
+  id?: string;
+  name: string;
+  cuisine: string;
+  cooking_time: string;
+  difficulty: string;
   ingredients: string[];
   instructions: string[];
-  prepTime: string;
-  cookTime: string;
-  servings: number;
+  nutrition: string;
+  tips: string;
+}
+
+export interface RecipeResponse {
+  recipes: Recipe[];
+  total: number;
 }
 
 export interface IngredientRecognitionResponse {

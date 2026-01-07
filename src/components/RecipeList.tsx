@@ -3,7 +3,6 @@ import { RecipeCard } from "./RecipeCard";
 
 interface RecipeListProps {
   recipes: Recipe[];
-  savedRecipeIds: string[];
   onSaveRecipe: (recipe: Recipe) => void;
   onRemoveRecipe: (recipeId: string) => void;
   onViewDetails?: (recipe: Recipe) => void;
@@ -13,7 +12,6 @@ interface RecipeListProps {
 
 export const RecipeList = ({
   recipes,
-  savedRecipeIds,
   onSaveRecipe,
   onRemoveRecipe,
   onViewDetails,
@@ -54,11 +52,10 @@ export const RecipeList = ({
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {recipes.map((recipe) => (
+      {recipes.map((recipe, index) => (
         <RecipeCard
-          key={recipe.id}
+          key={recipe.id || `recipe-${index}`}
           recipe={recipe}
-          isSaved={savedRecipeIds.includes(recipe.id)}
           onSave={onSaveRecipe}
           onRemove={onRemoveRecipe}
           onViewDetails={onViewDetails}
