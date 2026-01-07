@@ -4,6 +4,7 @@ import {
   IngredientsList,
   RecipeList,
   RecipeDetailModal,
+  Toast,
 } from "../components";
 import {
   useRecognizeIngredients,
@@ -15,12 +16,17 @@ import {
 import type { Recipe } from "../types";
 
 export const HomePage = () => {
+  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [recognizedIngredients, setRecognizedIngredients] = useState<string[]>(
     []
   );
   const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
   const [recommendedRecipes, setRecommendedRecipes] = useState<Recipe[]>([]);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  const [toastMessage, setToastMessage] = useState<{
+    message: string;
+    type: "success" | "error" | "info";
+  } | null>(null);
 
   const recognizeIngredientsMutation = useRecognizeIngredients();
   const getRecommendationsMutation = useGetRecommendations();
@@ -30,19 +36,38 @@ export const HomePage = () => {
 
   const savedRecipeIds = savedRecipes.map((r) => r.id);
 
-  const handleImageSelect = useCallback(
-    async (file: File) => {
-      try {
-        const result = await recognizeIngredientsMutation.mutateAsync(file);
-        setRecognizedIngredients(result.ingredients);
-        setSelectedIngredients(result.ingredients.map((value) => value));
-        setRecommendedRecipes([]);
-      } catch (error) {
-        console.error("Failed to recognize ingredients:", error);
-      }
-    },
-    [recognizeIngredientsMutation]
-  );
+  const handleImageSelect = useCallback((file: File) => {
+    setUploadedImage(file);
+    setRecognizedIngredients([]);
+    setSelectedIngredients([]);
+    setRecommendedRecipes([]);
+  }, []);
+
+  const handleIdentifyIngredients = useCallback(async () => {
+    if (!uploadedImage) return;
+
+    try {
+      const result = await recognizeIngredientsMutation.mutateAsync(
+        uploadedImage
+      );
+      setRecognizedIngredients(result.ingredients);
+      setSelectedIngredients(result.ingredients.map((value) => value));
+      setRecommendedRecipes([]);
+      setToastMessage({
+        message: "Ingredients identified successfully!",
+        type: "success",
+      });
+    } catch (error) {
+      console.error("Failed to recognize ingredients:", error);
+      setToastMessage({
+        message:
+          error instanceof Error
+            ? error.message
+            : "Failed to identify ingredients. Please try again.",
+        type: "error",
+      });
+    }
+  }, [uploadedImage, recognizeIngredientsMutation]);
 
   const handleToggleIngredient = useCallback((ingredientName: string) => {
     setSelectedIngredients((prev) =>
@@ -106,10 +131,25 @@ export const HomePage = () => {
             <h2 className="text-lg font-semibold text-gray-800 mb-4">
               1. Upload Your Ingredients Photo
             </h2>
-            <ImageUpload
-              onImageSelect={handleImageSelect}
-              isLoading={recognizeIngredientsMutation.isPending}
-            />
+            <ImageUpload onImageSelect={handleImageSelect} isLoading={false} />
+            {uploadedImage && (
+              <div className="mt-4">
+                <button
+                  onClick={handleIdentifyIngredients}
+                  disabled={recognizeIngredientsMutation.isPending}
+                  className="w-full bg-emerald-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-emerald-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                >
+                  {recognizeIngredientsMutation.isPending ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Identifying Ingredients...
+                    </span>
+                  ) : (
+                    "Identify Ingredients"
+                  )}
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Ingredients Section */}
@@ -157,6 +197,15 @@ export const HomePage = () => {
           isSaved={savedRecipeIds.includes(selectedRecipe.id)}
           onSave={handleSaveRecipe}
           onRemove={handleRemoveRecipe}
+        />
+      )}
+
+      {/* Toast Notification */}
+      {toastMessage && (
+        <Toast
+          message={toastMessage.message}
+          type={toastMessage.type}
+          onClose={() => setToastMessage(null)}
         />
       )}
     </div>
